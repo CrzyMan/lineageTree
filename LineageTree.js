@@ -7,26 +7,26 @@
 
 var fakeJsonTreeData = "";
 
-function LineageTree(jsonTreeData) {
+function LineageTree(treeData) {
     
     // The root of the tree
     this.root = null;
     
-    /** Retrieve a brother whose name contains the given name
+    /** Retrieve brothers whose name contains the given string
      * 
      * @param {String} name  The name of the brother
      *
      * @returns {Brother[]}  The list of brothers that meet the criteria
      */
-    this.getBrothersWithName = function(name){
+    this.searchByName = function(name){
         var results = [];
         if (this.root != null){
-            var stack = [].concat(this.root);
+            var stack = [this.root];
             while(stack.length > 0){
                 var brother = stack.pop();
-                stack = stack.concat(brother.getLittles());
+                stack = stack.concat(brother.littles);
                 
-                if (brother.getName().indexOf(name) >= 0) {
+                if (brother.name.includes(name)) {
                     results.push(brother);
                 }
             }
@@ -34,10 +34,74 @@ function LineageTree(jsonTreeData) {
         return results;
     }
     
+    
+    /** Retrieve brothers whose class contains the given string
+     * 
+     * @param {String} className  The name of the class
+     *
+     * @returns {Brother[]}  The list of brothers that meet the criteria
+     */
+    this.searchByClass = function(className){
+        var results = [];
+        if (this.root != null){
+            var stack = [this.root];
+            while(stack.length > 0){
+                var brother = stack.pop();
+                stack = stack.concat(brother.littles);
+                
+                if (brother.initiationClass.includes(name)) {
+                    results.push(brother);
+                }
+            }
+        }
+        return results;
+    }
+    
+    
+    /** Retrieve a brother whose property contains the given name
+     * 
+     * @param {String} property  The name of the property to search
+     * @param {String} value  The value to compare to
+     *
+     * @returns {Brother[]}  The list of brothers that meet the criteria
+     */
+    this.search = function(property, value){
+        if (this.root.propertyIsEnumerable(property) == false) return [];
+        
+        var results = [];
+        if (this.root != null){
+            var stack = [this.root];
+            while(stack.length > 0){
+                var brother = stack.pop();
+                stack = stack.concat(brother.littles);
+                
+                if (brother[property].includes(value)) {
+                    results.push(brother);
+                }
+            }
+        }
+        return results;
+    }
+    
+    /** @returns {int} The number of brothers in the tree
+     */
+    this.getSize = function(){
+        if (root == null) return 0;
+        return BrotherFactory.getSize(root);
+    }
+    
+    /** @returns {height} The height of the tree
+     */
+    this.getHeight = function(){
+        if (root == null) return 0;
+        return BrotherFactory.getHeight(root);
+    }
+    
+    
     /** @returns {String} The lineage tree in the JSON format
      */
     this.toJSON = function(){
-        return this.root.toJSON();
+        return JSON.stringify(this.root);
     }
     
     /** Turns JSON back into a lineage tree
@@ -45,8 +109,7 @@ function LineageTree(jsonTreeData) {
      * @param {String} jsonTreeData  The JSON data
      */
     this.parseTree = function(jsonTreeData){
-        var data = JSON.parse(jsonTreeData);
-        this.root = data.root || null;
+        this.root = JSON.parse(jsonTreeData);
     }
     
     /** Sets a new root for the tree
@@ -58,165 +121,74 @@ function LineageTree(jsonTreeData) {
     }
     
     // Part of the constructor
-    if (jsonTreeData) {
-        this.parseTree(jsonTreeData);
+    if (typeof treeData === "string") {
+        this.parseTree(treeData);
+    } else if (typeof treeData === "object") {
+        this.setRoot(treeData);
     }
 }
 
 
-/** The Brother class
- *
- * @constructor
- * @param {String} name  The name of the brother
- * @param {String} initiationClass  The initiation class of the brother
- */
-function Brother(name, initiationClass){
-    // The big of the brother
-    this.big = null;
-    
-    // The littles of the brother
-    this.littles = [];
-    
-    // The path picture of the brother to be displayed
-    this.picturePath = "";
-    
-    // The name of the brother
-    this.name = name;
-    
-    // The initiation class of the brother
-    this.initiationClass = initiationClass;
-    
-    
-    /** Gets the name of the brother
-     *
-     * @returns {String} The name of the brother
-     */
-    this.getName = function(){
-        return name;
-    }
-    
-    /** Sets the name of the brother
-     *
-     * @param {String} newName  The name of the brother
-     *  
-     */
-    this.setName = function(newName){
-        this.name = newName;
-    }
-    
-    
-    
-    /** @returns {Stiring} The name of the initiation class
-     */
-    this.getInitiationClass = function(){
-        return initiationClass;
-    }
-    
-    /** Set the name of the brother's initiation class
-     * 
-     * @param {String} newInitiationClass
-     */
-    this.setInitiationClass = function(newInitiationClass){
-        this.initiationClass = newInitiationClass;
-    }
-    
-    
-    
-    /** Set the brother's big brother
-     *
-     * @param {Brother} big
-     */
-    this.setBig = function(hisBig){
-        this.big = hisBig;
-    }
-    
-    /** Remove the brother's big
-     */
-    this.removeBig = function(){
-        this.setBig(null);
-    }
-    
-    /** @returns {Brother} The brother's big
-     */
-    this.getBig = function(){
-        return this.big;
-    }
-    
-    
-    
-    /** @returns {Brothers[]} The brother's littles
-     */
-    this.getLittles = function(){
-        return this.littles;
-    }
-    
-    /** Adds a little to the brother
-     * 
-     * @param {Brother} theLittle
-     */
-    this.addLittle = function(theLittle){
-        theLittle.setBig(this);
-        this.littles.push(theLittle);
-    }
-    
-    /** Removes the little from the brother's list of littles
-     *
-     * @param {Brother} little
-     */
-    this.removeLittle = function(theLittle){
-        theLittle.setBig(null);
-        this.littles.remove(theLittle);
-    }
 
-    
-    
-    /** Whether or not the other brother is the same brother
-     *
-     * @param {Brother} brother  The brother to compare to
-     *
-     * @returns {boolean}
-     */
-    this.equals = function(brother){
-        return this.name==brother.getName() && this.initiationClass == brother.getInitiationClass();
+
+/** The Brother Factory
+ */
+var BrotherFactory = {
+};
+
+/**
+ * @param {String}
+ */
+BrotherFactory.new = function(name, initiationClass){
+    return {
+        "name": name,
+        "initiationClass": initiationClass,
+        "littles": [],
+        "picture": "",
+        "wiki": ""
+    };
+}
+
+/** Whether or not the other brother is the same brother
+ *
+ * @param {Brother} brother  The brother to compare to
+ *
+ * @returns {boolean}
+ */
+BrotherFactory.areEqual = function(b1, b2){
+    return b1.name==b2.name && b1.initiationClass == b2.initiationClass;
+}
+
+/** @returns {int} The number of brothers inclusively under this brother
+ */
+BrotherFactory.getSize = function(brother){
+    var sum = 1;
+    for (var i = 0; i < brother.littles.length; i++){
+        sum += BrotherFactory.getSize(brother.littles[0]);
     }
-    
-    
-    
-    /** Sets the path for the picture of the brother
-     *
-     * @param {String} newPicturePath
-     */
-    this.setPicturePath = function(newPicturePath){
-        this.picturePath = newPicturePath;
+    return sum;
+}
+
+/** @returns {int} The height of the tree inclusively under the brother
+ */
+BrotherFactory.getHeight = function(brother){
+    var height = 0;
+    for (var i = 0; i < brother.littles.length; i++){
+        var h = BrotherFactory.getHeight(brother.littles[i]);
+        if (h > height) height = h;
     }
-    
-    /** @returns {String} The path for the picture of the brother
-     */
-    this.getPicturePath = function(){
-        return this.picturePath;
-    }
-    
-    
-    
-    /** Converts the brother's data to a JSON formatted string
-     *
-     * @returns {String} the formatted JSON
-     */
-    this.toJSON = function(){
-        var result = "{\"name\": \"" + this.name +
-            "\", \"initiationClass\": \"" + this.initiationClass +
-            "\", \"picturePath\": \"" + this.picturePath +
-            // "\", \"big\":\"" + this.big.g +
-            "\", \"littles\":[";
-        
-        // Add all of the littles
-        for (var i = 0; i < this.littles.length; i++) {
-            if (i > 0) result += ", ";
-            result += this.littles[i].toJSON();
-        }
-        
-        result += "]}";
-        
-        return result;
-    }
+    return height + 1;
+}
+
+
+
+/** Just some utilities
+ */
+function addLittles(layer, bro){
+  bro.littles.push(BrotherFactory.new(bro.name + "a", ""+layer));
+  bro.littles.push(BrotherFactory.new(bro.name + "b", ""+layer));
+  if (layer !== 1){
+    addLittles(layer - 1, bro.littles[0]);
+    addLittles(layer - 1, bro.littles[1]);
+  }
 }
