@@ -86,15 +86,15 @@ function LineageTree(treeData) {
     /** @returns {int} The number of brothers in the tree
      */
     this.getSize = function(){
-        if (root == null) return 0;
-        return BrotherFactory.getSize(root);
+        if (this.root == null) return 0;
+        return BrotherFactory.getSize(this.root);
     }
     
     /** @returns {height} The height of the tree
      */
     this.getHeight = function(){
-        if (root == null) return 0;
-        return BrotherFactory.getHeight(root);
+        if (this.root == null) return 0;
+        return BrotherFactory.getHeight(this.root);
     }
     
     
@@ -141,8 +141,8 @@ var BrotherFactory = {
  */
 BrotherFactory.new = function(name, initiationClass){
     return {
-        "name": name,
-        "initiationClass": initiationClass,
+        "name": name || "",
+        "initiationClass": initiationClass || "",
         "littles": [],
         "picture": "",
         "wiki": ""
@@ -162,6 +162,8 @@ BrotherFactory.areEqual = function(b1, b2){
 /** @returns {int} The number of brothers inclusively under this brother
  */
 BrotherFactory.getSize = function(brother){
+    if (brother == null) return 0;
+    
     var sum = 1;
     for (var i = 0; i < brother.littles.length; i++){
         sum += BrotherFactory.getSize(brother.littles[0]);
@@ -172,6 +174,8 @@ BrotherFactory.getSize = function(brother){
 /** @returns {int} The height of the tree inclusively under the brother
  */
 BrotherFactory.getHeight = function(brother){
+    if (brother == null) return 0;
+    
     var height = 0;
     for (var i = 0; i < brother.littles.length; i++){
         var h = BrotherFactory.getHeight(brother.littles[i]);
