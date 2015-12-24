@@ -12,51 +12,6 @@ function LineageTree(treeData) {
     // The root of the tree
     this.root = null;
     
-    /** Retrieve brothers whose name contains the given string
-     * 
-     * @param {String} name  The name of the brother
-     *
-     * @returns {Brother[]}  The list of brothers that meet the criteria
-     */
-    this.searchByName = function(name){
-        var results = [];
-        if (this.root != null){
-            var stack = [this.root];
-            while(stack.length > 0){
-                var brother = stack.pop();
-                stack = stack.concat(brother.littles);
-                
-                if (brother.name.includes(name)) {
-                    results.push(brother);
-                }
-            }
-        }
-        return results;
-    }
-    
-    
-    /** Retrieve brothers whose class contains the given string
-     * 
-     * @param {String} className  The name of the class
-     *
-     * @returns {Brother[]}  The list of brothers that meet the criteria
-     */
-    this.searchByClass = function(className){
-        var results = [];
-        if (this.root != null){
-            var stack = [this.root];
-            while(stack.length > 0){
-                var brother = stack.pop();
-                stack = stack.concat(brother.littles);
-                
-                if (brother.initiationClass.includes(name)) {
-                    results.push(brother);
-                }
-            }
-        }
-        return results;
-    }
-    
     
     /** Retrieve a brother whose property contains the given name
      * 
