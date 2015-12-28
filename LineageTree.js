@@ -5,7 +5,7 @@
  * - - This would make it easy to translate between object and JSON, but make the project a little harder to follow
  */
 
-var fakeJsonTreeData = "";
+var fakeJsonTreeData = '{"name":"Padrick Mulligan","id":"1","initiationClass":"Beta Delta","littles":[{"name":"Alexander Vasko","id":"2","initiationClass":"Beta Zeta","littles":[{"name":"Tyler Whitehouse","id":"3","initiationClass":"Beta Lambda","littles":[{"name":"Zach Swanson","id":"4","initiationClass":"Beta Nu","littles":[],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}';
 
 function LineageTree(treeData) {
     
@@ -65,6 +65,17 @@ function LineageTree(treeData) {
      */
     this.parseTree = function(jsonTreeData){
         this.root = JSON.parse(jsonTreeData);
+        // TODO: find and set the id;
+    }
+    
+    /** @returns {String} The lineage tree in viz.js format
+     */
+    this.toViz = function(){
+        var sb = [];
+        sb.push("digraph {\n\n  node [ shape=box color=black fillcolor=white style=filled]\n\n")
+        sb.push(BrotherFactory.toViz(this.root));
+        sb.push(" } ");
+        return sb.join("");
     }
     
     /** Sets a new root for the tree
@@ -89,6 +100,8 @@ function LineageTree(treeData) {
 /** The Brother Factory
  */
 var BrotherFactory = {
+    "currentId": -1,
+    "getNextId": function(){return ++BrotherFactory.currentId;},
 };
 
 /**
@@ -100,7 +113,8 @@ BrotherFactory.new = function(name, initiationClass){
         "initiationClass": initiationClass || "",
         "littles": [],
         "picture": "",
-        "wiki": ""
+        "wiki": "",
+        "id": BrotherFactory.getNextId(),
     };
 }
 
@@ -138,6 +152,33 @@ BrotherFactory.getHeight = function(brother){
     }
     return height + 1;
 }
+
+/** @returns {String} returns the inclusive lineage under this brother in viz.js format
+ */
+BrotherFactory.toViz = function(brother){
+    var sb = [];
+    
+    // node data
+    sb.push("  ", brother.id, " [\n    label=< <B>", brother.name, "</B> <br/>" , brother.initiationClass, " >\n  ]\n\n");
+    
+    // write node data for littles
+    for (var i = 0; i < brother.littles.length; i++) {    
+        sb.push(BrotherFactory.toViz(brother.littles[i]));
+    }
+    
+    // connect to littles
+    sb.push("  ", brother.id, " -> { ");
+    for (var i = 0; i < brother.littles.length; i++) {
+        // add connection
+        sb.push(brother.littles[i].id, " ");
+    }
+    sb.push(" } \n\n");
+    
+    return sb.join("");
+}
+
+
+
 
 
 
