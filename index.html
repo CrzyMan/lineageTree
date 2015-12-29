@@ -9,8 +9,8 @@
 </head>
 
 <body>
-    stuff here
-    <div>Stuff there</div>
+    <button id="b_toggleDebug">Debug: Off</button>
+    
     <center><div id="vizStuff"></div></center>
     
     <nav id="context-menu" class="context-menu">
@@ -25,154 +25,43 @@
                 <span class="context-menu-link" id="mia_little">Add Little</span>
             </li>
             <li class="context-menu-item">
-                <span class="context-menu-link" id="mia_4">stuff 4</span>
+                <span class="context-menu-link" id="mia_file">Get tree file</span>
             </li>
         </ul>
     </nav>
-
-<script>
-
-var lin;
-var contextMenu = document.getElementById('context-menu');
-var contextMenuActiveClass = "context-menu-active";
-var disapearTimer;
-var selectedBrother;
-
-/** Load in the tree data, either from the data.txt file, or the fake data backup
- */
-function loadTreeData()
-{
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "data.txt", true);
-    rawFile.onreadystatechange = function ()
-    {
-        console.log(rawFile);
-        if(rawFile.readyState === 4 && rawFile.responseText !== "")
-        {
-            var treeData = rawFile.responseText;
-            lin = new LineageTree(treeData);
-        }
-    }
     
-    rawFile.onerror = function()
-    {
-        console.error("File could not be reached. Falling back on fake data.");
-        lin = new LineageTree(fakeJsonTreeData);
-    }
+    <div class="holder" id="newBrotherMenuHolder">
+        <div id="newBrotherMenu">
+            <form onsubmit="return false">
+                <center><h2>New Brother</h2></center>
+                <label>Name: </label><input id="nbm_name" type="text"/>
+                <label>Class: </label><input id="nbm_class" type="text"/><br/>
+                <button id="nbm_confirm" class="left">Confirm</button><button id="nbm_cancel" class="right">Cancel</button>
+            </form>
+        </div>
+    </div>
     
-    rawFile.send();
-}
-
-/** Draws the svg to the vizStuff div
- */
-function drawViz(){
-    var vizString = lin.toViz();
-    console.log(vizString);
-    document.getElementById('vizStuff').innerHTML = Viz(vizString);
-}
-
-/** Handles when a brother is clicked
- *
- * @param {mouseEvent} e
- */
-function handleBrotherClick(e) {
-    e.preventDefault();
-    var elem = e.srcElement;
-    var par = elem.parentElement || elem.parentNode;
-    var id = par.childNodes[0].innerHTML;
-    var bro = lin.search("id", id)[0];
+    <div class="holder" id="changeNameDialogHolder">
+        <div id="changeNameDialog">
+            <form onsubmit="return false">
+                <center><h2 id="cnd_previous">New Name</h2></center>
+                <label>Name: </label><input id="cnd_name" type="text"/><br/>
+                <button id="cnd_confirm" class="left">Confirm</button><button id="cnd_cancel" class="right">Cancel</button>
+            </form>
+        </div>
+    </div>
     
-    selectedBrother = bro;
-    
-    console.log("id: " + bro.id + "\nname: " + bro.name + "\ninitiation class: " + bro.initiationClass);
-    
-    moveContextMenuTo(e);
-}
+    <div class="holder" id="changeClassDialogHolder">
+        <div id="changeClassDialog">
+            <form onsubmit="return false">
+                <center><h2 id="ccd_previous">New Class</h2></center>
+                <label>Class: </label><input id="ccd_class" type="text"/><br/>
+                <button id="ccd_confirm" class="left">Confirm</button><button id="ccd_cancel" class="right">Cancel</button>
+            </form>
+        </div>
+    </div>
 
-/** Moves the popupMenu to wherever the mouse was clicked
- *
- * @param {mouseEvent}
- */
-function moveContextMenuTo(e) {
-    contextMenu.style.left = ((e.pageX || e.layerX) - 10) + "px";
-    contextMenu.style.top = ((e.pageY || e.layerY) - 10) + "px";
-    
-    window.clearTimeout(disapearTimer);
-    contextMenu.classList.add(contextMenuActiveClass);
-}
-
-/** Hide the menu if the mouse leaves for 500ms;
- */
-function hideMenu(e){
-    if (!clickedABrother(e)){
-        contextMenu.classList.remove(contextMenuActiveClass);
-    }
-}
-document.body.onclick = hideMenu;
-
-/** @returns {Boolean}  Whether or not the click was on a brother
- */
-function clickedABrother(e) {
-    
-    var el = e.srcElement || e.target;
-    
-    return  el.tagName == "polygon" ||
-            el.tagName == "text";
-}
-
-/** Makes all of the brothers clickable
- */
-function makeClickable() {
-    var nodes = document.getElementsByClassName("node");
-    for (var i = 0; i < nodes.length; i++){
-        nodes.item(i).oncontextmenu = handleBrotherClick;
-    }
-}
-
-/** Updates the graph by redrawing and making the brothers clickable
- */
-function updateGraph() {
-    drawViz()
-    makeClickable();
-}
-
-
-
-/********************************
- ** The context menu functions **
- ********************************/
-/** Change the name of the selected brother
- */
-function changeName() {
-    // change the name
-    newName = window.prompt("New Name for " + selectedBrother.name);
-    if (newName !== null && newName.trim() !== "") {
-        selectedBrother.name = newName;
-        updateGraph();
-    }
-}
-
-
-
-
-
-/*****************
- ** Final setup **
- *****************/
-// Set onclick functions for the context menu
-(function(){
-    document.getElementById('mia_name').onclick = changeName;
-})()
-
-
-// now that we are done, lets start the page
-loadTreeData();
-
-updateGraph();
-
-
-
-</script>
+    <script src="app.js"></script>
 
 </body>
 </html>

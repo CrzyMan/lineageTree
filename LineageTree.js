@@ -5,7 +5,7 @@
  * - - This would make it easy to translate between object and JSON, but make the project a little harder to follow
  */
 
-var fakeJsonTreeData = '{"name":"Padrick Mulligan","id":"1","initiationClass":"Beta Delta","littles":[{"name":"Alexander Vasko","id":"2","initiationClass":"Beta Zeta","littles":[{"name":"Tyler Whitehouse","id":"3","initiationClass":"Beta Lambda","littles":[{"name":"Zach Swanson","id":"4","initiationClass":"Beta Nu","littles":[],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}';
+var fakeJsonTreeData = '{"name":"","id":"0","initiationClass":"","littles":[{"name":"Padrick Mulligan","id":"1","initiationClass":"Beta Delta","littles":[{"name":"Alexander Vasko","id":"2","initiationClass":"Beta Zeta","littles":[{"name":"Tyler Whitehouse","id":"3","initiationClass":"Beta Lambda","littles":[{"name":"Zach Swanson","id":"4","initiationClass":"Beta Nu","littles":[],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}';
 
 function LineageTree(treeData) {
     
@@ -21,7 +21,7 @@ function LineageTree(treeData) {
      * @returns {Brother[]}  The list of brothers that meet the criteria
      */
     this.search = function(property, value){
-        if (this.root.propertyIsEnumerable(property) == false) return [];
+        if (this.root == null || this.root.propertyIsEnumerable(property) == false) return [];
         
         var results = [];
         if (this.root != null){
@@ -30,12 +30,36 @@ function LineageTree(treeData) {
                 var brother = stack.pop();
                 stack = stack.concat(brother.littles);
                 
-                if (brother[property].includes(value)) {
+                if (brother[property].toLowerCase().includes(value.toLowerCase())) {
                     results.push(brother);
                 }
             }
         }
         return results;
+    }
+    
+    /** Retrieve a brother whose id is the same as the given id
+     * 
+     * @param {String} id  The unique id we are looking for
+     *
+     * @returns {Brother}  The brother with the ide
+     */
+    this.searchId = function(id){
+        if (this.root == null) return [];
+        
+        var results = [];
+        if (this.root != null){
+            var stack = [this.root];
+            while(stack.length > 0){
+                var brother = stack.pop();
+                stack = stack.concat(brother.littles);
+                
+                if (brother.id.toLowerCase() === id.toLowerCase()) {
+                    return brother;
+                }
+            }
+        }
+        return null;
     }
     
     /** @returns {int} The number of brothers in the tree
@@ -65,7 +89,7 @@ function LineageTree(treeData) {
      */
     this.parseTree = function(jsonTreeData){
         this.root = JSON.parse(jsonTreeData);
-        // TODO: find and set the id;
+        BrotherFactory.currentId = this.getHighestId();
     }
     
     /** @returns {String} The lineage tree in viz.js format
@@ -84,6 +108,13 @@ function LineageTree(treeData) {
      */
     this.setRoot = function(newRoot){
         this.root = newRoot;
+        BrotherFactory.currentId = this.getHighestId();
+    }
+    
+    /** @returns {int}  The highest id in the lineage tree
+     */
+    this.getHighestId = function(){
+        return BrotherFactory.getHighestId(this.root);
     }
     
     // Part of the constructor
@@ -102,6 +133,7 @@ function LineageTree(treeData) {
 var BrotherFactory = {
     "currentId": -1,
     "getNextId": function(){return ++BrotherFactory.currentId;},
+    "debugMode": false,
 };
 
 /**
@@ -114,7 +146,7 @@ BrotherFactory.new = function(name, initiationClass){
         "littles": [],
         "picture": "",
         "wiki": "",
-        "id": BrotherFactory.getNextId(),
+        "id": ""+BrotherFactory.getNextId(),
     };
 }
 
@@ -158,23 +190,39 @@ BrotherFactory.getHeight = function(brother){
 BrotherFactory.toViz = function(brother){
     var sb = [];
     
-    // node data
-    sb.push("  ", brother.id, " [\n    label=< <B>", brother.name, "</B> <br/>" , brother.initiationClass, " >\n  ]\n\n");
+    // If the brother isn't "null"
+    if (BrotherFactory.debugMode || brother.name !== "" && brother.initiationClass !== "") {
+        // Node data
+        sb.push("  ", brother.id, " [\n    label=< <B> ", brother.name, "</B> <br/>" , brother.initiationClass, " >\n  ]\n\n");
+        
+        // Connect to littles
+        sb.push("  ", brother.id, " -> { ");
+        for (var i = 0; i < brother.littles.length; i++) {
+            // Add connection
+            sb.push(brother.littles[i].id, " ");
+        }
+        sb.push(" } \n\n");
+    }
     
-    // write node data for littles
+    
+    // Write node data for littles
     for (var i = 0; i < brother.littles.length; i++) {    
         sb.push(BrotherFactory.toViz(brother.littles[i]));
     }
     
-    // connect to littles
-    sb.push("  ", brother.id, " -> { ");
-    for (var i = 0; i < brother.littles.length; i++) {
-        // add connection
-        sb.push(brother.littles[i].id, " ");
-    }
-    sb.push(" } \n\n");
-    
     return sb.join("");
+}
+
+/** @returns {int}  The Highest id inclusively under this brother
+ */
+BrotherFactory.getHighestId = function(brother){
+    var highest = -1;
+    if (brother.id > highest) highest = brother.id;
+    for (var i = 0; i < brother.littles.length; i++) {
+        var littleHighest = BrotherFactory.getHighestId(brother.littles[i]);
+        if (littleHighest > highest) highest = littleHighest;
+    }
+    return highest;
 }
 
 
