@@ -5,7 +5,7 @@
  * - - This would make it easy to translate between object and JSON, but make the project a little harder to follow
  */
 
-var fakeJsonTreeData = '{"name":"","id":"0","initiationClass":"","littles":[{"name":"Padrick Mulligan","id":"1","initiationClass":"Beta Delta","littles":[{"name":"Alexander Vasko","id":"2","initiationClass":"Beta Zeta","littles":[{"name":"Tyler Whitehouse","id":"3","initiationClass":"Beta Lambda","littles":[{"name":"Zach Swanson","id":"4","initiationClass":"Beta Nu","littles":[],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}],"picture":"","wiki":""}';
+var fakeJsonTreeData = '{"name":"","class":"","littles":[{"name":"William O. Ried","class":"Alpha","littles":[{"name":"Steven P. Rhea","class":"Beta","littles":[{"name":"Michael L. Fagg","class":"Epsilon","littles":[{"name":"L. Kyle Massey","class":"Lambda","littles":[{"name":"Cody Schaff","class":"Nu","littles":[],"gradDate":"","id":"16"},{"name":"Jason C. Hittle","class":"Omicron","littles":[],"gradDate":"","id":"19"},{"name":"Jason M. Bumgardner","class":"Rho","littles":[{"name":"Jason L. DeBruhler","class":"Chi","littles":[{"name":"Alan R. Study","class":"Psi","littles":[],"gradDate":"","id":"22"}],"gradDate":"","id":"21"}],"gradDate":"","id":"20"}],"gradDate":"","id":"15"},{"name":"Douglas Brooks","class":"Mu","littles":[],"gradDate":"","id":"17"}],"gradDate":"","id":"11"},{"name":"Eugene T. Coughran","class":"Eta","littles":[{"name":"James Wagman","class":"Iota","littles":[],"gradDate":"","id":"18"}],"gradDate":"","id":"12"}],"gradDate":"","id":"8"},{"name":"Allan Thompson","class":"Gamma","littles":[{"name":"Kurt F. Breischaft","class":"Epsilon","littles":[{"name":"Mark B. Kraeling","class":"Eta","littles":[],"gradDate":"","id":"23"}],"gradDate":"","id":"13"},{"name":"Harold Kays","class":"Iota","littles":[],"gradDate":"","id":"14"}],"gradDate":"","id":"9"},{"name":"Scott Terek","class":"Epsilon","littles":[{"name":"Stephen A. Osaba","class":"Zeta","littles":[{"name":"Raymond L. Fisher","class":"Eta","littles":[],"gradDate":"","id":"26"}],"gradDate":"","id":"24"},{"name":"Scott A. Weishaar","class":"Eta","littles":[{"name":"Richard C. Bergen","class":"theta","littles":[],"gradDate":"","id":"27"}],"gradDate":"","id":"25"}],"gradDate":"","id":"10"}],"gradDate":"","id":"7"}],"gradDate":"","id":"6"}';
 
 function LineageTree(treeData) {
     
@@ -136,16 +136,20 @@ var BrotherFactory = {
     "debugMode": false,
 };
 
-/**
- * @param {String}
+/** Constructs a new brother
+ * 
+ * @param {String} name  The name of the brother
+ * @param {String} intitiationClass  The initiation class of the brother
+ * @param {String} gradDate  The graduation month and year of the brother
+ *
+ * @returns {Object}  The new brother
  */
-BrotherFactory.new = function(name, initiationClass){
+BrotherFactory.new = function(name, initclass, gradDate){
     return {
         "name": name || "",
-        "initiationClass": initiationClass || "",
+        "class": initclass || "",
         "littles": [],
-        "picture": "",
-        "wiki": "",
+        "gradDate": gradDate || "",
         "id": ""+BrotherFactory.getNextId(),
     };
 }
@@ -157,7 +161,7 @@ BrotherFactory.new = function(name, initiationClass){
  * @returns {boolean}
  */
 BrotherFactory.areEqual = function(b1, b2){
-    return b1.name==b2.name && b1.initiationClass == b2.initiationClass;
+    return b1.name==b2.name && b1.class == b2.class;
 }
 
 /** @returns {int} The number of brothers inclusively under this brother
@@ -191,9 +195,9 @@ BrotherFactory.toViz = function(brother){
     var sb = [];
     
     // If the brother isn't "null"
-    if (BrotherFactory.debugMode || brother.name !== "" && brother.initiationClass !== "") {
+    if (BrotherFactory.debugMode || brother.name !== "") {
         // Node data
-        sb.push("  ", brother.id, " [\n    label=< <B> ", brother.name, "</B> <br/>" , brother.initiationClass, " >\n  ]\n\n");
+        sb.push("  ", brother.id, " [\n    label=< <B>", brother.name, " </B><br/>" , brother.class, "<br/>", brother.gradDate, ">\n  ]\n\n");
         
         // Connect to littles
         sb.push("  ", brother.id, " -> { ");
@@ -217,12 +221,13 @@ BrotherFactory.toViz = function(brother){
  */
 BrotherFactory.getHighestId = function(brother){
     var highest = -1;
-    if (brother.id > highest) highest = brother.id;
+    var bId = parseInt(brother.id);
+    if (bId > highest) highest = bId;
     for (var i = 0; i < brother.littles.length; i++) {
         var littleHighest = BrotherFactory.getHighestId(brother.littles[i]);
         if (littleHighest > highest) highest = littleHighest;
     }
-    return highest;
+    return ""+highest;
 }
 
 
@@ -230,8 +235,11 @@ BrotherFactory.getHighestId = function(brother){
 
 
 
-/** Just some utilities
- */
+/*************************
+ ** Just some utilities **
+ *************************/
+
+// makes a big tree
 function addLittles(layer, bro){
   bro.littles.push(BrotherFactory.new(bro.name + "a", ""+layer));
   bro.littles.push(BrotherFactory.new(bro.name + "b", ""+layer));

@@ -24,6 +24,18 @@ svg {
 	margin: 10px;
 }
 
+div.verticalCenter {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 40pt;
+}
+
+polygon.highlightedBrother {
+	fill: yellow;
+}
+
 
 /******************
  ** Context Menu **
@@ -89,43 +101,45 @@ svg {
   padding: 12px 0;
 	padding-left: 5px;
 	padding-right: 5px;
-  width: 240px;
+  width: 300px;
   background-color: #fff;
   border: solid 1px #dfdfdf;
   box-shadow: 1px 1px 2px #cfcfcf;
 }
 
-div label{
+#newBrotherDialog label{
     display: inline-block;
     float: left;
     clear: left;
-    width: 50px;
-    text-align: center;
+    width: 120px;
+    text-align: right;
 		margin: 5px 0;
 }
 
-div input {
+#newBrotherDialog input {
   display: inline-block;
   float: left;
 	margin: 5px 0;
 }
 
-div button {
+#newBrotherDialog button {
   display: inline-block;
 	margin: 5px 0;
 }
 
 button.left {
 		float: left;
+		margin-left: 30px;
 }
 
 button.right {
 		float: right;
+		margin-right: 30px;
 }
 
 .holder {
 	display: none;
-	position: absolute;
+	position: fixed;
 	left: 0;
 	top: 0;
 	background-color: rgba(0,0,0,0.5);
@@ -137,23 +151,18 @@ button.right {
 	display: block;
 }
 
-
-
-
-/************************
- ** Change Name Dialog **
- ************************/
-
-.changeNameDialogHolder {
-	
+/******************
+ ** Control Menu **
+ ******************/
+#controlMenu {
+	position: fixed;
+	left: 0;
+	top: 0;
+	padding: 10px;
+	border: solid 2px;
+	background-color: white;
 }
 
-
-
-/************************
- ** Change Name Dialog **
- ************************/
-
-.changeNameDialogHolder {
-	
+#controlMenu, #controlMenu button, #controlMenu input {
+	font-size: 15pt;
 }

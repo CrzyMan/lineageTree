@@ -9,17 +9,23 @@
 </head>
 
 <body>
-    <button id="b_toggleDebug">Debug: Off</button>
-    
-    <center><div id="vizStuff"></div></center>
+    <div id="controlMenu">
+        <button id="b_toggleDebug">Turn Debug On</button><br/><br/>
+        <form onsubmit="return false">
+            <span>Brother Name:</span><br/>
+            <input type="text" id="cm_broName"/><button id="cm_searchBroName">Search</button>
+        </form>
+    </div>
+    <center>
+        <div id="vizStuff">
+            <div class="verticalCenter">Loading...</div>
+        </div>
+    </center>
     
     <nav id="context-menu" class="context-menu">
         <ul class="context-menu-items">
             <li class="context-menu-item">
-                <span class="context-menu-link" id="mia_name">Change Name</span>
-            </li>
-            <li class="context-menu-item">
-                <span class="context-menu-link" id="mia_class">Change Class</span>
+                <span class="context-menu-link" id="mia_edit">Edit Brother</span>
             </li>
             <li class="context-menu-item">
                 <span class="context-menu-link" id="mia_little">Add Little</span>
@@ -30,13 +36,14 @@
         </ul>
     </nav>
     
-    <div class="holder" id="newBrotherMenuHolder">
-        <div id="newBrotherMenu">
+    <div class="holder" id="newBrotherDialogHolder">
+        <div id="newBrotherDialog">
             <form onsubmit="return false">
-                <center><h2>New Brother</h2></center>
-                <label>Name: </label><input id="nbm_name" type="text"/>
-                <label>Class: </label><input id="nbm_class" type="text"/><br/>
-                <button id="nbm_confirm" class="left">Confirm</button><button id="nbm_cancel" class="right">Cancel</button>
+                <center><h2 id="nbd_label">New Brother</h2></center>
+                <label>Name: </label><input id="nbd_name" type="text"/>
+                <label>Class: </label><input id="nbd_class" type="text"/>
+                <label>Graduation Date: </label><input id="nbd_grad" type="text">
+                <button id="nbd_confirm" class="left">Confirm</button><button id="nbd_cancel" class="right">Cancel</button>
             </form>
         </div>
     </div>
